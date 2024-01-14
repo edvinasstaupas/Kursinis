@@ -1,1 +1,1 @@
-# Landmark recongnition
+# Landmark recognition
