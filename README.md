@@ -1,1 +1,1 @@
-# Kursinis
+# Landmark recognition
