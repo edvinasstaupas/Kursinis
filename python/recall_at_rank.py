@@ -1,22 +1,19 @@
 import numpy as np
 from tqdm import tqdm
 
-classes = 1000
-num_images_per_class = 25
+classes = 45
+num_images_per_class = 500
 
-filename1 = 'matrix/final/matrix.npy'
-filename2 = 'matrix/resnet/matrix.npy'
+model = "RNQR"
+filename1 = "matrix/resnet-similarity-gldv-quad_same-class/matrix.npy"
 
-# # Load similarity matrix
 cosine_similarities1 = np.load(filename1)
-# cosine_similarities2 = np.load(filename2)
 
-# Calculate true positives, false positives, and total positives for various thresholds
-num_thresholds = 51  # Adjust the number of thresholds
+num_thresholds = 51
 thresholds = np.linspace(0, 1, num_thresholds)
 
-# Specify the values of k for Recall at K
-ks = [1, 10, 50]  # Adjust the values of k as needed
+ks = [1, 10, num_images_per_class]
+
 
 def calc_recall(cosine_similarities):
     recall_at_ks_list = np.zeros((len(thresholds), len(ks)))
@@ -32,7 +29,9 @@ def calc_recall(cosine_similarities):
             row_with_class = []
             for j in range(row.shape[0]):
                 row_with_class.append((row[j], j // num_images_per_class == class_id))
-            sorted_row_with_class = sorted(row_with_class, key=lambda x: x[0], reverse=True)
+            sorted_row_with_class = sorted(
+                row_with_class, key=lambda x: x[0], reverse=True
+            )
             del sorted_row_with_class[0]
             for l, k in enumerate(ks):
                 k_items = sorted_row_with_class[:k]
@@ -44,9 +43,17 @@ def calc_recall(cosine_similarities):
             recall_at_ks_list_2[t][l] = loc_at_k[l]
         print(recall_at_ks_list)
 
-    print("Recalls:")
-    print(recall_at_ks_list)
+    print(
+        model,
+        "=",
+        '("',
+        model,
+        '", np.array(',
+        recall_at_ks_list.tolist(),
+        "))",
+        sep="",
+    )
     return recall_at_ks_list
 
+
 recalls_model = calc_recall(cosine_similarities1)
-# recalls_resnet = calc_recall(cosine_similarities2)
